@@ -5,7 +5,7 @@ from snapgene_reader import snapgene_file_to_seqrecord, snapgene_file_to_gbk
 from Bio.SeqUtils import MeltingTemp
 
 def main():
-    filepath = "D:/PycharmProjects/SnapgeneProcessing/Primer Design/"
+ filepath = "D:/PycharmProjects/SnapgeneProcessing/Primer Design/"
     primer_forward_list={}
     primer_backward_list = {}
     savepath = 'D:/PycharmProjects/SnapgeneProcessing/Primer_design.xls'
@@ -27,25 +27,55 @@ def main():
         reverse_sequence = DNA_reverse(sequence)
     #print(reverse_sequence)
         complement_sequence = DNA_complement2(reverse_sequence)
-        a, b, primer_forward, primer_backward = primer_design(sequence, complement_sequence)
+        primer_forward, primer_backward = sequence[0:59-len(primer_forward_prefix)],complement_sequence[0:59-len(primer_backward_prefix)]
         i = 0
         primer_forward_list[file[:-4] + '_' + str(i)] = primer_forward_prefix + primer_forward
         primer_backward_list[file[:-4] + '_' + str(i)] = primer_backward_prefix + primer_backward
-        while len(sequence)+len(primer_forward)+len(primer_backward) > a + b - 40:
-                i = 1
-                sequence = sequence[a - 25:len(sequence) + 25 - b]
-                complement_sequence = DNA_complement2(DNA_reverse(sequence))
-                a, b, primer_forward, primer_backward = primer_design(sequence, complement_sequence)
-                primer_forward_list[file[:-4] + '_' + str(i)] = primer_forward
-                primer_backward_list[file[:-4] + '_' + str(i)] = primer_backward
-                print(len(sequence))
-                print(a)
-                print(b)
-                i = i + 1
+        i = 1
+        if len(sequence)+len(primer_backward_prefix)+len(primer_forward_prefix) < 118:
+            if calculate_melting_temp(sequence[len(sequence)+len(primer_backward_prefix)-60:59-len(primer_forward_prefix)]) < 65:
+                    print(sequence[len(sequence)+len(primer_backward_prefix)-60:59-len(primer_forward_prefix)])
+                    print('overlap sequence Tm = '+str(calculate_melting_temp(sequence[len(sequence)+len(primer_backward_prefix)-60:59-len(primer_forward_prefix)])))
+                    print("Step logic1-1:")
+
+                    sequence_1 = sequence[len(sequence)+len(primer_backward_prefix)-58:]
+                    print('sequence_1 = '+str(len(sequence_1)))
+                    complement_sequence_1 = DNA_complement2(DNA_reverse(sequence[:59-len(primer_forward_prefix)]))
+                    print('complement_sequence_1 = ' + str(len(complement_sequence_1)))
+                    a, b, primer_forward, primer_backward = primer_design(sequence_1,complement_sequence_1,56)
+                    complement_sequence_2 = DNA_complement2(DNA_reverse(sequence[:len(sequence)+len(primer_backward_prefix)-59+a]))
+                    sequence_2 = sequence[59-len(primer_forward_prefix)-b:]
+                    a,b,primer_forward,primer_backward = primer_design(sequence_2,complement_sequence_2,65)
+                    primer_forward = DNA_complement2(DNA_reverse(primer_forward))
+                    primer_backward = DNA_complement2(DNA_reverse(primer_backward))
+                    primer_forward_list[file[:-4] + '_' + str(i)] = primer_forward
+                    primer_backward_list[file[:-4] + '_' + str(i)] = primer_backward
+        elif 240>len(sequence)+len(primer_backward_prefix)+len(primer_forward_prefix)>117:
+            sequence_1 = sequence[len(sequence) + len(primer_backward_prefix) - 58:]
+            print('sequence_1 = ' + str(len(sequence_1)))
+            complement_sequence_1 = DNA_complement2(DNA_reverse(sequence[:59 - len(primer_forward_prefix)]))
+            print('complement_sequence_1 = ' + str(len(complement_sequence_1)))
+            a, b, primer_forward, primer_backward = primer_design(sequence_1, complement_sequence_1, 56)
+            complement_sequence_2 = DNA_complement2(
+                DNA_reverse(sequence[:len(sequence) + len(primer_backward_prefix) - 59 + a]))
+            sequence_2 = sequence[59 - len(primer_forward_prefix) - b:]
+            a, b, primer_forward, primer_backward = primer_design(sequence_2, complement_sequence_2, 65)
+            primer_forward = DNA_complement2(DNA_reverse(primer_forward))
+            primer_backward = DNA_complement2(DNA_reverse(primer_backward))
+
+
+
+
+
+            primer_forward_list[file[:-4] + '_' + str(i)] = primer_forward
+            primer_backward_list[file[:-4] + '_' + str(i)] = primer_backward
+        #print(len(sequence))
+        #print(a)
+        #print(b)
+        #i = i + 1
     #print(complement_sequence)
     #print(calculate_melting_temp(seqence[30:57]))
     #print(calculate_melting_temp(seqence[0:10]))
-
 
     print(primer_forward_list)
     print(primer_backward_list)
