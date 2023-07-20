@@ -51,22 +51,11 @@ def main():
                     primer_forward_list[file[:-4] + '_' + str(i)] = primer_forward
                     primer_backward_list[file[:-4] + '_' + str(i)] = primer_backward
         elif 240>len(sequence)+len(primer_backward_prefix)+len(primer_forward_prefix)>117:
-            sequence_1 = sequence[len(sequence) + len(primer_backward_prefix) - 58:]
-            print('sequence_1 = ' + str(len(sequence_1)))
-            complement_sequence_1 = DNA_complement2(DNA_reverse(sequence[:59 - len(primer_forward_prefix)]))
-            print('complement_sequence_1 = ' + str(len(complement_sequence_1)))
+            sequence_1 = sequence[len(sequence)+len(primer_backward_prefix)-59:]
+            complement_sequence_1 = DNA_complement2(DNA_reverse(sequence[:59-len(primer_forward_prefix)]))
             a, b, primer_forward, primer_backward = primer_design(sequence_1, complement_sequence_1, 56)
-            complement_sequence_2 = DNA_complement2(
-                DNA_reverse(sequence[:len(sequence) + len(primer_backward_prefix) - 59 + a]))
-            sequence_2 = sequence[59 - len(primer_forward_prefix) - b:]
-            a, b, primer_forward, primer_backward = primer_design(sequence_2, complement_sequence_2, 65)
-            primer_forward = DNA_complement2(DNA_reverse(primer_forward))
-            primer_backward = DNA_complement2(DNA_reverse(primer_backward))
-
-
-
-
-
+            primer_forward = sequence[59-len(primer_forward_prefix):len(sequence)+len(primer_backward_prefix)-59] + primer_forward
+            primer_backward = DNA_complement2(DNA_reverse(sequence[59-len(primer_forward_prefix):len(sequence)+len(primer_backward_prefix)-59])) + primer_backward
             primer_forward_list[file[:-4] + '_' + str(i)] = primer_forward
             primer_backward_list[file[:-4] + '_' + str(i)] = primer_backward
         #print(len(sequence))
