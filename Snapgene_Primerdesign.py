@@ -55,11 +55,22 @@ def main():
             sequence_1 = sequence[len(sequence)+len(primer_backward_prefix)-59:]
             complement_sequence_1 = DNA_complement2(DNA_reverse(sequence[:59-len(primer_forward_prefix)]))
             a, b, primer_forward, primer_backward = primer_design(sequence_1, complement_sequence_1, 56)
-            primer_forward = sequence[len(sequence)-118+a +len(primer_backward_prefix):len(sequence)+len(primer_backward_prefix)-59] + primer_forward
             c = 1
-            while calculate_melting_temp(primer_forward[0:c])<56:
-                c = c+1
-            primer_backward = DNA_complement2(DNA_reverse(sequence[59-len(primer_forward_prefix)-b:len(sequence)-118+a +len(primer_backward_prefix)+c]))
+            if calculate_melting_temp(sequence[59-len(primer_forward_prefix):len(sequence)-59+len(primer_backward_prefix)])>65:
+                print('Tm = '+str(calculate_melting_temp(sequence[59-len(primer_forward_prefix):len(sequence)-59+len(primer_backward_prefix)])))
+                while calculate_melting_temp(sequence[59-len(primer_forward_prefix)+c:len(sequence)-59+len(primer_backward_prefix)-c])>65:
+                    c = c + 1
+                primer_forward = sequence[59-len(primer_forward_prefix)+c:len(sequence)-59+len(primer_backward_prefix)]+primer_forward
+                primer_backward = DNA_complement2(DNA_reverse(sequence[59-len(primer_forward_prefix)-b:len(sequence)-59+len(primer_backward_prefix)-c]))
+            elif calculate_melting_temp(sequence[59-len(primer_forward_prefix):len(sequence)-59+len(primer_backward_prefix)])< 65:
+                print('Tm = ' + str(calculate_melting_temp(
+                    sequence[59 - len(primer_forward_prefix):len(sequence) - 59 + len(primer_backward_prefix)])))
+                while calculate_melting_temp(sequence[59-len(primer_forward_prefix)-c:len(sequence)-59+len(primer_backward_prefix)+c])<65:
+                    c = c + 1
+                primer_forward = sequence[59 - len(primer_forward_prefix) - c:len(sequence) - 59 + len(
+                    primer_backward_prefix)] + primer_forward
+                primer_backward = DNA_complement2(DNA_reverse(
+                    sequence[59 - len(primer_forward_prefix) - b:len(sequence) - 59 + len(primer_backward_prefix) + c]))
             primer_forward_list[file[:-4] + '_' + str(i)] = primer_forward
             primer_backward_list[file[:-4] + '_' + str(i)] = primer_backward
         #print(len(sequence))
